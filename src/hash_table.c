@@ -54,3 +54,18 @@ void ht_del_hash_table(ht_hash_table* ht) {
     free(ht);
 }
 
+// This is our own simple version of a hash function (it is not really thay complicated tbh)
+// Remember, an ideal hash function results in an even distribution of the buckets;
+// if not, it'll be more prone to collisions, where two or more inputs are assigned the same bucket.
+static int ht_hash(const char* s, const int a, const int m) {
+    long hash = 0;
+    const int len_s = strlen(s);
+
+    for (int i = 0; i < len_s; i++) {
+        hash += (long)pow(a, len_s - (i+1)) * s[i];
+        hash = hash % m;
+    }
+
+    return (int)hash;
+}
+
