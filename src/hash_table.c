@@ -69,3 +69,23 @@ static int ht_hash(const char* s, const int a, const int m) {
     return (int)hash;
 }
 
+// Collisions aren't good, but at the same time they're almost inevitable sometimes. 
+// Hash tables have to map an infinite number of inputs to a finite number of buckets,
+// and by the pigeonhole principle, there must be a collision. Therefore, we have to find 
+// a way to deal with these. Here, we will be using open addressing with double hashing. 
+// Double hashing makes use of two hash functions to calculate the index an item should be 
+// stored at after i number of collisions. (Note that this is not the only technique to avoid
+// collisions; I believe in CS 271 we used something called chaining which used doubly linked lists)
+
+// Here's the general idea for our double hashing technique: 
+// index = hash_a(string) + i * hash_b(string) % num_buckets
+
+// This index should be used after i collisions; if there aren't any collisions, i = 0,
+// and the entire hash_b function will be cancelled (there are no collisions, so no need to
+// change anything). However, if there are any, then hash_b can help change the index again.
+// Edge case: it's possible for hash_b to return 0, cancelling the second term when we don't want it to.
+// This would cause the hash table to try to insert the item into the same bucket infinitely, which is bad.
+// Let's avoid this by simply adding 1 to the result of the second hash to ensure it's never 0.
+// index = (hash_a(string) + i * (hash_b(string) + 1)) % num_buckets
+
+
