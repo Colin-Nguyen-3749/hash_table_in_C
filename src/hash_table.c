@@ -87,5 +87,10 @@ static int ht_hash(const char* s, const int a, const int m) {
 // This would cause the hash table to try to insert the item into the same bucket infinitely, which is bad.
 // Let's avoid this by simply adding 1 to the result of the second hash to ensure it's never 0.
 // index = (hash_a(string) + i * (hash_b(string) + 1)) % num_buckets
+static int ht_get_hash(const char* s, const int num_buckets, const int attempt) {
+    const int hash_a = ht_hash(s, HT_PRIME_1, num_buckets);
+    const int hash_b = ht_hash(s, HT_PRIME_2, num_buckets);
 
+    return (hash_a + (attempt * (hash_b + 1))) % num_buckets;
+}
 
