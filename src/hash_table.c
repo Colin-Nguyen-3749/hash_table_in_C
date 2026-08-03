@@ -17,3 +17,40 @@ static ht_item* ht_new_item(const char* k, const char* v) {
     // using malloc and copying the source string into it
     return i;
 }
+
+// This initializes a new table, where size defines how many items we can store.
+// For now, size is fixed at 53 (this can be expanded later with resizing).
+// Initialize this array using calloc, filling the allocated memory with NULL bytes. 
+// These NULL entries tell us that the buckets are empty.
+ht_hash_table* ht_new() {
+    ht_hash_table* ht = malloc(sizeof(ht_hash_table)); // remember that sizeof tells us the 
+                                                       // size of a datatype!
+    
+    ht->size = 53;
+    ht->count = 0;
+    ht->items = calloc((size_t)ht->size, sizeof(ht_item*)); 
+
+    return ht;
+}
+// These functions are for deleting ht_items and ht_hash_tables in order
+// to free the memory we've allocated to prevent memory leaks.
+static void ht_del_item(ht_item* i) {
+    free(i->key);
+    free(i->value);
+    free(i);
+}
+
+void ht_del_hash_table(ht_hash_table* ht) {
+
+    // Just iteratively go through the hash table to delete any non-empty buckets
+    for (int i = 0; i < ht->size; i++) {
+        ht_item* item = ht->items[i];
+        if (item != NULL) {
+            ht_del_item(item);
+        }
+    }
+
+    free(ht->items);
+    free(ht);
+}
+
