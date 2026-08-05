@@ -94,3 +94,79 @@ static int ht_get_hash(const char* s, const int num_buckets, const int attempt) 
     return (hash_a + (attempt * (hash_b + 1))) % num_buckets;
 }
 
+
+// Insert 
+// To insert a new key-value pair, what we have to do is go through all of the 
+// buckets until we find one that's empty. Then, we insert the item into that empty
+// bucket and increment the count for the hash table to show that something has been added.
+void ht_insert(ht_hash_table* ht, const char* key, const char* value) {
+    ht_item* item = ht_new_item(key, value);
+    int index = ht_get_hash(item->key, ht->size, 0);
+    ht_item* cur_item = ht->items[index];
+    int i = 1;
+
+    // Iterate through the hash table to find an empty bucket
+    while (cur_item != NULL ) {
+        index = ht_get_hash(item->key, ht->size, i);
+        cur_item = ht->items[index];
+        i++;
+    }
+
+    // Insert in item and increment count
+    ht->items[index] = item;
+    ht->count++;
+}
+
+// Search
+// Like inserting, we must iterate through the hash table, but now 
+// we check if the item's key matches what we're looking for instead of 
+// us looking for an empty bucket. If we found what we want, return that item's
+// value. If we reach an empty bucket, return null to shows that nothing was found.
+char* ht_search(ht_hash_table* ht, const char* key) {
+    int index = ht_get_hash(key, ht->size, 0);
+    ht_item* item = ht->items[index];
+    int i = 1;
+
+    // strcmp is a function that compares two null-terminated strings 
+    // byte-by-byte based on their ASCII values
+    while (item != NULL) {
+        if (strcmp(item->key, key) == 0) {
+            return item->value;
+            // If we found the right key
+        }
+        index = ht_get_hash(key, ht->size, i);
+        item = ht->items[index];
+        i++;
+    }
+    return NULL;
+}
+
+// Delete
+// Deleting is a bit more complex than our previous functions.
+// If the item to be deleted is part of a collision chain, we have to be careful
+// when removing it so that we don't make the rest of the chain impossible
+// to access. So instead, let's mark the item as deleted. To do this, 
+// use a pointer to a global sentinel item that represents that the bucket
+// has a deleted item. 
+static ht_item HT_DELETED_ITEM = {NULL, NULL};
+
+void ht_delete(ht_hash_table* ht, const char* key) {
+    int index = ht_get_hash(key, ht->sizze, 0);
+    ht_item* item = ht->items [index];
+    int i = 1;
+
+    // Simply search for the item
+    while (item != NULL) {
+        if (item != &HT_DELETED_ITEM) {
+            if (strcmp(item->key, key) == 0) {
+                ht_del_item(item);
+                ht->items[index] = &HT_DELETED_ITEM;
+            }
+        }
+        index = ht_get_hash(key, ht->size, i);
+        item = ht->items[index];
+        i++;
+    }
+    // Decrement the hash table's count
+    ht->count--;
+}
