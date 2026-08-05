@@ -99,6 +99,16 @@ static int ht_get_hash(const char* s, const int num_buckets, const int attempt) 
 // To insert a new key-value pair, what we have to do is go through all of the 
 // buckets until we find one that's empty. Then, we insert the item into that empty
 // bucket and increment the count for the hash table to show that something has been added.
+
+// Edit:
+// Update
+// Before this function was implemented, our hash table doesn't support
+// updating a key's value. So if we had inserted two items with the same key, 
+// a collision would occur, and the second item will be inserted into the next open
+// bucket. If we searched for the key in this scenario, the original key will always 
+// be located, but the second item wouldn't be able to be accessed.
+// ht_insert deletes the previous item and inserts the new item into its place.
+
 void ht_insert(ht_hash_table* ht, const char* key, const char* value) {
     ht_item* item = ht_new_item(key, value);
     int index = ht_get_hash(item->key, ht->size, 0);
@@ -107,15 +117,28 @@ void ht_insert(ht_hash_table* ht, const char* key, const char* value) {
 
     // Iterate through the hash table to find an empty bucket
     // Edit: add to the while loop condition to skip over buckets marked as deleted
-    while (cur_item != NULL && cur_item != &HT_DELETED_ITEM) {
+    while (cur_item != NULL) {
         index = ht_get_hash(item->key, ht->size, i);
         cur_item = ht->items[index];
         i++;
     }
 
     // Insert in item and increment count
-    ht->items[index] = item;
-    ht->count++;
+    // ht->items[index] = item;
+    // ht->count++;
+
+    // Edit: Instead of just inserting the value into a bucket,
+    // we will delete whatever's there (in case two items have the same key)
+    // and 'update' its value to our new one.
+    while (cur_item != NULL) {
+        if (cur_item != &HT_DELETED_ITEM) {
+            if (strcmp(cur_item->key, key) == 0) {
+                ht_del_items(cur_item);
+                ht->items[index] = item;
+                return;
+            }
+        }
+    }
 }
 
 // Search
@@ -175,3 +198,4 @@ void ht_delete(ht_hash_table* ht, const char* key) {
     // Decrement the hash table's count
     ht->count--;
 }
+
