@@ -106,7 +106,8 @@ void ht_insert(ht_hash_table* ht, const char* key, const char* value) {
     int i = 1;
 
     // Iterate through the hash table to find an empty bucket
-    while (cur_item != NULL ) {
+    // Edit: add to the while loop condition to skip over buckets marked as deleted
+    while (cur_item != NULL && cur_item != &HT_DELETED_ITEM) {
         index = ht_get_hash(item->key, ht->size, i);
         cur_item = ht->items[index];
         i++;
@@ -129,14 +130,18 @@ char* ht_search(ht_hash_table* ht, const char* key) {
 
     // strcmp is a function that compares two null-terminated strings 
     // byte-by-byte based on their ASCII values
+    // Edit: Add additional if statement to skip over buckets marked as 
+    // empty from delete function
     while (item != NULL) {
-        if (strcmp(item->key, key) == 0) {
-            return item->value;
-            // If we found the right key
+        if (item != &HT_DELETED_ITEM) {
+            if (strcmp(item->key, key) == 0) {
+                return item->value;
+                // If we found the right key
+            }
+            index = ht_get_hash(key, ht->size, i);
+            item = ht->items[index];
+            i++;
         }
-        index = ht_get_hash(key, ht->size, i);
-        item = ht->items[index];
-        i++;
     }
     return NULL;
 }
