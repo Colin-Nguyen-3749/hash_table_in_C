@@ -216,3 +216,20 @@ void ht_delete(ht_hash_table* ht, const char* key) {
     ht->count--;
 }
 
+// Resizing is needed because a hash table is of finite size, but there's 
+// no limit to the amount of inputs it can have. If it has too many, there's a 
+// much higher chance for collisions to occur, which is bad. To prevent this, 
+// we should increase the size of the array (hash table) when it gets too full.
+// To do this, we'll keep track of the number of items in the hash table with the 
+// count variable. Whenever we insert or delete, we'll calculate the table's load, 
+// which is the ratio of filled buckets to empty buckets. If this ratio is higher than
+// 0.7 (our own personal preference), rescale up. If less than 0.1, rescale down. 
+
+// For resizing, we'll create a new hash table that's about half or twice as big as the 
+// current hash table, then insert all non-deleted items into it. The size of the new array
+// should be a prime number that's about half or double the size of the current hash table.
+// To help us find the new array size, we'll store a base size (which is the size of our array
+// initially) and then define the actual sizeas the first prime number larger than the base size.
+// For resizing up, double the base size. To resize down, cut it in half. In both cases, after 
+// doubling or halving, find the next largest prime number. 
+// Here, our base size will start at 50. 

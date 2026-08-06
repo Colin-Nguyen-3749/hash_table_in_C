@@ -4,6 +4,10 @@
 // Return whether x is prime or not
 // If prime, returns 1, if not, returns 0
 // returns -1 is undefined (example, x < 2)
+
+// Use a 'brute force' method by checking if each successive
+// number is prime. This shouldn't be that bad since we don't 
+// actually have to check that many numbers.
 int is_prime(const int x) {
     if (x < 2) { return -1; }
     if (x < 4) { return 1; }
