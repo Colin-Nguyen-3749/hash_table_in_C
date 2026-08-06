@@ -23,15 +23,32 @@ static ht_item* ht_new_item(const char* k, const char* v) {
 // Initialize this array using calloc, filling the allocated memory with NULL bytes. 
 // These NULL entries tell us that the buckets are empty.
 ht_hash_table* ht_new() {
-    ht_hash_table* ht = malloc(sizeof(ht_hash_table)); // remember that sizeof tells us the 
-                                                       // size of a datatype!
+    // ht_hash_table* ht = malloc(sizeof(ht_hash_table)); // remember that sizeof tells us the 
+    //                                                    // size of a datatype!
     
-    ht->size = 53;
-    ht->count = 0;
-    ht->items = calloc((size_t)ht->size, sizeof(ht_item*)); 
+    // ht->size = 53;
+    // ht->count = 0;
+    // ht->items = calloc((size_t)ht->size, sizeof(ht_item*)); 
 
+    // return ht;
+
+    // Edit: rewrite new_ht function to use ht_new_sized to prepare hash table 
+    // for any resizing operations needed
+    return ht_new_sized(HT_INITIAL_BASE_SIZE);
+}
+
+static ht_hash_table* ht_new_sized(const int base_size) {
+    ht_hash_table* ht = xmalloc(sizeof(ht_hash_table));
+    ht->base_size = base_size;
+
+    ht->size = next_prime(ht->base_size);
+
+    ht->count = 0;
+    ht->items = xcalloc((size_t)ht->size, sizeof(ht_item*));
     return ht;
 }
+
+
 // These functions are for deleting ht_items and ht_hash_tables in order
 // to free the memory we've allocated to prevent memory leaks.
 static void ht_del_item(ht_item* i) {
